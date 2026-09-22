@@ -1,0 +1,276 @@
+{
+  "dataset": "imsparsh/Gesture-Recognition-Dataset plus staged temporal datasets",
+  "base": "MediaPipe Gesture Recognizer; frozen hand detector/landmarks",
+  "input_frame_size": [
+    480,
+    270
+  ],
+  "source_clip_frames": "varies by dataset; at least 10",
+  "sampled_frames_per_window": 10,
+  "window_seconds": "per-row duration_ms; default 1.0",
+  "sampling_interval_ms": "per-row duration_ms / 10",
+  "sampling_strategy": "10 evenly-spaced ordered frames across each labeled source clip",
+  "source_timing_caveat": "Each row duration must match source clip duration; default is 1 second. Source-specific assumptions recorded alongside dataset manifest.",
+  "mediapipe_confidence_thresholds": {
+    "detection": 0.25,
+    "presence": 0.25,
+    "tracking": 0.25
+  },
+  "class_map": {
+    "stop/palm": "open_palm",
+    "thumbs_up/like": "thumb_up",
+    "left/right/up/down swipe or scroll": "swipe"
+  },
+  "train_count": 5830,
+  "validation_count": 1269,
+  "train_counts": {
+    "open_palm": 1630,
+    "thumb_up": 1623,
+    "swipe": 2577
+  },
+  "validation_counts": {
+    "open_palm": 322,
+    "thumb_up": 316,
+    "swipe": 631
+  },
+  "cv_accuracy_by_model": {
+    "logistic": [
+      0.9210977701543739,
+      0.9159519725557461,
+      0.9168096054888508,
+      0.9065180102915952,
+      0.9090909090909091
+    ],
+    "rbf_svm": [
+      0.9245283018867925,
+      0.9193825042881647,
+      0.9219554030874786,
+      0.9082332761578045,
+      0.9125214408233276
+    ],
+    "extra_trees": [
+      0.9305317324185248,
+      0.9245283018867925,
+      0.9305317324185248,
+      0.9236706689536878,
+      0.9228130360205832
+    ],
+    "random_forest": [
+      0.9271012006861064,
+      0.9271012006861064,
+      0.9296740994854202,
+      0.91852487135506,
+      0.91852487135506
+    ]
+  },
+  "selected_model": "extra_trees",
+  "validation_accuracy": 0.9314420803782506,
+  "validation_macro_f1": 0.9097469793874318,
+  "validation_confusion_matrix": [
+    [
+      242,
+      76,
+      4
+    ],
+    [
+      3,
+      310,
+      3
+    ],
+    [
+      0,
+      1,
+      630
+    ]
+  ],
+  "validation_report": {
+    "open_palm": {
+      "precision": 0.9877551020408163,
+      "recall": 0.7515527950310559,
+      "f1-score": 0.8536155202821869,
+      "support": 322.0
+    },
+    "thumb_up": {
+      "precision": 0.8010335917312662,
+      "recall": 0.9810126582278481,
+      "f1-score": 0.8819345661450925,
+      "support": 316.0
+    },
+    "swipe": {
+      "precision": 0.989010989010989,
+      "recall": 0.9984152139461173,
+      "f1-score": 0.9936908517350158,
+      "support": 631.0
+    },
+    "accuracy": 0.9314420803782506,
+    "macro avg": {
+      "precision": 0.9259332275943573,
+      "recall": 0.9103268890683404,
+      "f1-score": 0.9097469793874318,
+      "support": 1269.0
+    },
+    "weighted avg": {
+      "precision": 0.9418831299528426,
+      "recall": 0.9314420803782506,
+      "f1-score": 0.9303187138514643,
+      "support": 1269.0
+    }
+  },
+  "feature_names": [
+    "trajectory_x_0",
+    "trajectory_x_1",
+    "trajectory_x_2",
+    "trajectory_x_3",
+    "trajectory_x_4",
+    "trajectory_x_5",
+    "trajectory_x_6",
+    "trajectory_x_7",
+    "trajectory_x_8",
+    "trajectory_x_9",
+    "trajectory_y_0",
+    "trajectory_y_1",
+    "trajectory_y_2",
+    "trajectory_y_3",
+    "trajectory_y_4",
+    "trajectory_y_5",
+    "trajectory_y_6",
+    "trajectory_y_7",
+    "trajectory_y_8",
+    "trajectory_y_9",
+    "pose_0",
+    "pose_1",
+    "pose_2",
+    "pose_3",
+    "pose_4",
+    "pose_5",
+    "pose_6",
+    "pose_7",
+    "pose_8",
+    "pose_9",
+    "pose_10",
+    "pose_11",
+    "pose_12",
+    "pose_13",
+    "pose_14",
+    "pose_15",
+    "pose_16",
+    "pose_17",
+    "pose_18",
+    "pose_19",
+    "pose_20",
+    "pose_21",
+    "pose_22",
+    "pose_23",
+    "pose_24",
+    "pose_25",
+    "pose_26",
+    "pose_27",
+    "pose_28",
+    "pose_29",
+    "pose_30",
+    "pose_31",
+    "pose_32",
+    "pose_33",
+    "pose_34",
+    "pose_35",
+    "pose_36",
+    "pose_37",
+    "pose_38",
+    "pose_39",
+    "pose_40",
+    "pose_41",
+    "pose_42",
+    "pose_43",
+    "pose_44",
+    "pose_45",
+    "pose_46",
+    "pose_47",
+    "pose_48",
+    "pose_49",
+    "pose_50",
+    "pose_51",
+    "pose_52",
+    "pose_53",
+    "pose_54",
+    "pose_55",
+    "pose_56",
+    "pose_57",
+    "pose_58",
+    "pose_59",
+    "pose_60",
+    "pose_61",
+    "pose_62",
+    "valid_fraction",
+    "net_dx",
+    "net_dy",
+    "path_x",
+    "path_y",
+    "horizontal_fraction",
+    "horizontal_efficiency",
+    "vertical_efficiency",
+    "x_range",
+    "y_range",
+    "mean_speed",
+    "max_speed",
+    "hand_scale",
+    "gesture_fraction_Open_Palm",
+    "gesture_fraction_Thumb_Up",
+    "gesture_fraction_Closed_Fist",
+    "gesture_fraction_Victory",
+    "gesture_fraction_Pointing_Up"
+  ],
+  "training_seconds": 249.33,
+  "caveat": "Three target classes only; no unrelated-gesture or no-gesture training examples. Domain transfer and actual-device robustness unverified.",
+  "dataset_manifest": {
+    "sources": {
+      "imsparsh": "creator train/val split preserved; 30 frames; 1000ms assumption",
+      "Mendeley Data 8ffrgcmjkm v2": {
+        "rgb_archive": "rgb_blur.zip",
+        "frames_per_clip": 40,
+        "frame_rate": "not specified in source paper; 10 frames sampled across sequence and rescaled to 1000ms",
+        "label_map": {
+          "scroll_left/right/up/down": "swipe",
+          "zoom_in/out": "excluded"
+        },
+        "split": "hold out capture dates 2021-11-01 and 2021-11-05; subject identifiers unavailable"
+      },
+      "HaGRIDv2": {
+        "classes": {
+          "palm": "open_palm",
+          "like": "thumb_up"
+        },
+        "sampled_per_class": {
+          "train": 1500,
+          "val": 300
+        },
+        "split": "official train/val splits preserved",
+        "static_frame_policy": "repeat each still image across 10 ordered model inputs"
+      },
+      "Zenodo 10.21227/43mn-bb52": {
+        "classes": {
+          "26": "leftward skip swipe",
+          "27": "rightward skip swipe"
+        },
+        "class_count": 126,
+        "gesture_windows": "30 frames centered on timing-CSV event; 30 fps; 1 second",
+        "split": "users 01-16 train, 17-21 validation"
+      }
+    },
+    "counts_by_manifest_label": {
+      "train": {
+        "swipe": 2577,
+        "open_palm": 1630,
+        "thumb_up": 1623
+      },
+      "val": {
+        "swipe": 631,
+        "open_palm": 322,
+        "thumb_up": 316
+      }
+    },
+    "sequence_counts": {
+      "train": 5830,
+      "val": 1269
+    }
+  }
+}
