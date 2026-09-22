@@ -1,0 +1,2 @@
+# Standalone MediaPipe mode, or the generated MediaPipe App Lab package.
+mediapipe==1.0.1
