@@ -6,10 +6,7 @@ def test_loop():
     sleep(1);
     Bridge.call("thumbs_up");
     sleep(1);
-    Bridge.call("swipe");"swipe");
+    Bridge.call("swipe");
     sleep(1);
-
-App.run(user_loop=test_loop)
-
 
 App.run(user_loop=test_loop)

@@ -1,0 +1,5 @@
+name: Basic Template
+description: The sketch pushes a periodic counter value to Python over the Bridge.
+ports: []
+bricks: []
+icon: 📤
