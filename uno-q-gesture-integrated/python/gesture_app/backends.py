@@ -12,7 +12,20 @@ INTEGRATED_LABELS = {
 }
 
 
-def integrated_results(result):
+def _normalized_center(box, image_width, image_height):
+    if not isinstance(box, (list, tuple)) or len(box) != 4:
+        return None
+    try:
+        x1, y1, x2, y2 = (float(value) for value in box)
+    except (TypeError, ValueError):
+        return None
+    if image_width <= 0 or image_height <= 0 or x2 <= x1 or y2 <= y1:
+        return None
+    return (min(1.0, max(0.0, (x1 + x2) / (2 * image_width))),
+            min(1.0, max(0.0, (y1 + y2) / (2 * image_height))))
+
+
+def integrated_results(result, image_width=1, image_height=1):
     # Arduino ObjectDetection returns percentage strings, including values < 1%.
     detections = []
     for item in (result or {}).get("detection", []):
@@ -22,7 +35,8 @@ def integrated_results(result):
             raise ValueError(f"Invalid integrated confidence: {item['confidence']!r}")
         if raw not in INTEGRATED_LABELS:
             raise RuntimeError(f"Unexpected label {raw!r}. Select the hand-gestures model in app.yaml.")
-        detections.append(Detection(INTEGRATED_LABELS[raw], confidence, raw_label=raw))
+        center = _normalized_center(item.get("bounding_box_xyxy"), image_width, image_height)
+        detections.append(Detection(INTEGRATED_LABELS[raw], confidence, raw_label=raw, center=center))
     return detections
 
 
@@ -37,7 +51,12 @@ def mediapipe_results(result):
         hand = None
         if index < len(result.handedness) and result.handedness[index]:
             hand = result.handedness[index][0].category_name.lower()
-        detections.append(Detection(top.category_name, float(top.score), hand, top.category_name))
+        center = None
+        if index < len(result.hand_landmarks) and result.hand_landmarks[index]:
+            landmarks = result.hand_landmarks[index]
+            center = (sum(point.x for point in landmarks) / len(landmarks),
+                      sum(point.y for point in landmarks) / len(landmarks))
+        detections.append(Detection(top.category_name, float(top.score), hand, top.category_name, center))
     return detections
 
 
@@ -58,7 +77,8 @@ class IntegratedBackend:
         result = self._detector.detect(encoded.tobytes(), image_type="jpg")
         if result is None:
             raise RuntimeError("Arduino inference returned no result. Check the Object Detection service logs in App Lab.")
-        return integrated_results(result)
+        height, width = bgr_frame.shape[:2]
+        return integrated_results(result, width, height)
 
     def close(self):
         pass  # The App Lab service lifecycle belongs to App Lab.

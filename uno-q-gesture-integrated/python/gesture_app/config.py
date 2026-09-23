@@ -96,10 +96,10 @@ def load_config(path):
     _boolean(led["enabled"], "led.enabled")
     colors = led["gesture_colors"]
     if not isinstance(colors, dict) or not all(
-        isinstance(gesture, str) and gesture and gesture != "None" and color in ("red", "green")
+        isinstance(gesture, str) and gesture and gesture != "None" and color in ("red", "green", "blue")
         for gesture, color in colors.items()
     ):
-        raise ConfigError('led.gesture_colors must map gesture names to "red" or "green"')
+        raise ConfigError('led.gesture_colors must map gesture names to "red", "green", or "blue"')
     _number(led["heartbeat_seconds"], "led.heartbeat_seconds", 0.1, 0.75)
     buzzer = _object(data["buzzer"], "buzzer", ["enabled"])
     _boolean(buzzer["enabled"], "buzzer.enabled")

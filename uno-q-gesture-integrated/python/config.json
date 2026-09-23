@@ -24,7 +24,8 @@
     "enabled": true,
     "gesture_colors": {
       "Open_Palm": "red",
-      "Thumb_Up": "green"
+      "Thumb_Up": "green",
+      "Swipe": "blue"
     },
     "heartbeat_seconds": 0.4
   },

@@ -1,6 +1,6 @@
 # UNO Q USB webcam gesture recognition
 
-Run hand gesture recognition on the **Arduino UNO Q's Linux processor**, selecting Arduino's integrated model or MediaPipe through `python/config.json`. A stable **raised open palm turns all eight Modulino Pixels and all four onboard RGB indicators red and plays two short beeps**. A stable **thumbs-up turns them green and plays one short beep**. Other gestures or no hand turn the lights off and silence the buzzer. Beeps play once when a gesture becomes stable, not on every frame; losing and showing the gesture again plays them again.
+Run hand gesture recognition on the **Arduino UNO Q's Linux processor**, selecting Arduino's integrated model or MediaPipe through `python/config.json`. A stable **raised open palm turns all eight Modulino Pixels and all four onboard RGB indicators red and plays two short beeps**. A stable **thumbs-up turns them green and plays one short beep**. A fast horizontal open-palm movement across the view triggers a heuristic **swipe**, blue pixels/indicators, and three short beeps. Other gestures or no hand turn the lights off and silence the buzzer. Swipe is derived from per-frame hand-box movement; it is not a separately trained class and needs physical tuning against your camera/lighting.
 
 The camera connects directly to the UNO Q. No Windows host camera server is used. Timestamped terminal logs show gestures, confidence, LED colors, module detection, and errors; JSON events remain available on stdout.
 
@@ -47,33 +47,25 @@ or:
 | `Pointing_Up` | Not available | Supported |
 | `ILoveYou` | Not available | Supported |
 
+Swipe is not supplied by either static gesture classifier. The app derives it from the open-palm center over fresh frames: at least 40% of view width within 750 ms, with limited vertical drift and mostly one-way movement. The detector requires multiple frames, so one-frame position jumps cannot trigger it.
+
 `integrated` uses the **Object Detection brick with Arduino's bundled `hand-gestures` Edge Impulse model**. Its four raw labels are mapped to shared names. It does not report left/right handedness. MediaPipe runs the official **Gesture Recognizer Tasks API**, reports handedness, and uses its `.task` model locally.
 
 Arduino's separate `arduino:gesture_recognition` brick currently declares **Ventuno Q** support, so this UNO Q implementation uses the supported `hand-gestures` model instead. See the [Arduino model catalog](https://github.com/arduino/app-bricks-py/blob/main/models/models-list.yaml) and [gesture brick definition](https://github.com/arduino/app-bricks-py/blob/main/src/arduino/app_bricks/gesture_recognition/brick_config.yaml).
 
 ## Build and run in App Lab
 
-Run these commands from this source project's folder. They need only Python 3.10+ on the development computer; **on Windows use `py -3.11` in place of `python3`**.
+Open/import this directory (`uno-q-gesture-integrated/`) as the Arduino App Lab app, connect UNO Q, and press **Run**. App Lab compiles and flashes `sketch/sketch.ino`, installs the configured Object Detection Brick, and starts `python/main.py`. Keep webcam connected to the UNO Q (powered USB-C hub), not to the PC. Set `camera.device` in `python/config.json` to the board's capture node first if it is not `/dev/video0`.
+
+The Python configuration can be checked on a development computer with Python 3.10+ (on Windows, use `py -3.11`):
 
 ```sh
 python3 python/main.py --check-config
 ```
 
-For MediaPipe, fetch the official model once before packaging:
+Hold a raised palm or thumbs-up for three processed frames to trigger its feedback. Move an open palm horizontally across at least 40% of the view to trigger swipe feedback. Lower your hand or stop moving to clear/release feedback. App Lab flashes the supplied sketch when running the app.
 
-```sh
-python3 scripts/download_model.py
-```
-
-Then build the app selected by your configuration:
-
-```sh
-python3 scripts/prepare.py
-```
-
-Import the resulting **`dist/uno-q-gesture-integrated.zip`** or **`dist/uno-q-gesture-mediapipe.zip`** into Arduino App Lab, connect to your UNO Q, and press **Run**. App Lab installs dependencies, starts the necessary service, and flashes the included sketch. Hold a raised palm or thumbs-up steadily for three processed frames for the corresponding color and beeps. Lower your hand or make another gesture to clear the output. Re-upload/re-import the updated sketch together with Python: the feedback RPC has changed.
-
-**After changing backends, rebuild and import the ZIP again.** App Lab decides service and dependency installation from `app.yaml` before Python starts; `prepare.py` generates those files from the same configuration. Only the selected inference backend is instantiated, and the MediaPipe package starts no Edge Impulse service. Camera and threshold edits can also be made in the imported app's `python/config.json`; stop and restart after editing. Changes are read at startup, not live.
+App Lab uses `app.yaml` to install the configured detection Brick before Python starts. Camera and threshold edits can be made in `python/config.json`; stop and restart after editing. Changes are read at startup, not live.
 
 The checked-in root `app.yaml` is ready for integrated mode if you work directly from the source folder on the board. For a MediaPipe deployment, use the generated package, which includes its model and requirements. Keep the source project for rebuilding; generated ZIPs contain only the runtime app.
 
@@ -86,8 +78,8 @@ The checked-in root `app.yaml` is ready for integrated mode if you work directly
 - `recognition.stable_frames`: number of consecutive processed frames with the same strongest gesture/hand. Empty, unknown, low-confidence, or changing results reset stability. If multiple hands are visible, the **highest-confidence gesture** controls this demo.
 - `recognition.repeat_seconds`: limits repeated console messages for a held gesture. A change is reported immediately after stabilization; losing the gesture emits `None` once.
 - `mediapipe.model_path`: resolved relative to the configuration file, independent of the working directory. Packaging embeds the selected file under `python/models/`.
-- `led.enabled`: enable all four onboard RGB indicators and the eight Modulino Pixels. `led.gesture_colors` maps `Open_Palm` to `red` and `Thumb_Up` to `green`. Unmapped gestures turn the LEDs off. This replaces the old `led.on_gestures` list.
-- `buzzer.enabled`: enable the Modulino Buzzer. Red feedback plays two 100 ms beeps at 1 kHz; green plays one 100 ms beep at 1.8 kHz. Set this to `false` for silent operation.
+- `led.enabled`: enable all four onboard RGB indicators and the eight Modulino Pixels. `led.gesture_colors` maps `Open_Palm` to `red`, `Thumb_Up` to `green`, and `Swipe` to `blue`. Unmapped gestures turn the LEDs off.
+- `buzzer.enabled`: enable the Modulino Buzzer. Red feedback plays two 100 ms beeps at 1 kHz; green one at 1.8 kHz; blue three at 1.4 kHz. Set this to `false` for silent operation.
 
 The webcam is opened by one capture thread and only the latest frame is retained. Inference never reuses a frame to satisfy the stability count. MediaPipe uses synchronous VIDEO mode with increasing monotonic timestamps for tracking. Inference failures exit with an error; there is no silent backend fallback.
 

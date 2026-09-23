@@ -50,7 +50,15 @@ def edge_impulse_results(response):
         raw = item["label"]
         if raw not in INTEGRATED_LABELS:
             raise RuntimeError(f"Unexpected label {raw!r}; use the hand-gestures model")
-        detections.append(Detection(INTEGRATED_LABELS[raw], score, raw_label=raw))
+        center = None
+        try:
+            x, y = float(item["x"]), float(item["y"])
+            width, height = float(item["width"]), float(item["height"])
+            if width > 0 and height > 0:
+                center = ((x + width / 2) / 96.0, (y + height / 2) / 96.0)
+        except (KeyError, TypeError, ValueError):
+            pass
+        detections.append(Detection(INTEGRATED_LABELS[raw], score, raw_label=raw, center=center))
     return detections
 
 

@@ -5,7 +5,7 @@ import logging
 import time
 
 LOG = logging.getLogger(__name__)
-COLOR_CODES = {"off": 0, "red": 1, "green": 2}
+COLOR_CODES = {"off": 0, "red": 1, "green": 2, "blue": 3}
 
 
 class Outputs:
@@ -53,7 +53,7 @@ class Outputs:
                             LOG.warning("Modulino Buzzer missing: check its Qwiic cable and restart the sketch")
                         self._hardware_status = status
                     if changed and color != "off" and self._buzzer:
-                        LOG.info("Buzzer requested: %s short beep(s)", 2 if color == "red" else 1)
+                        LOG.info("Buzzer requested: %s short beep(s)", {"red": 2, "green": 1, "blue": 3}[color])
                 except Exception as exc:
                     if now - self._bridge_warning_time >= 5:
                         LOG.warning("Feedback Bridge call failed (recognition continues): %s", exc)

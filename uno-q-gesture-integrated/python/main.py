@@ -29,7 +29,7 @@ def run(config, camera_test=False):
                 from gesture_app.backends import create_backend
                 from gesture_app.output import Outputs, connect_bridge
                 from gesture_app.linux_leds import connect_linux_leds
-                from gesture_app.recognition import StableGesture
+                from gesture_app.recognition import StableGesture, SwipeDetector
 
                 backend = create_backend(config)
                 stack.callback(backend.close)
@@ -39,6 +39,9 @@ def run(config, camera_test=False):
                 outputs = Outputs(config, connect_bridge(config), linux_leds=linux_leds)
                 stack.callback(outputs.close)
                 filtering = StableGesture(config.data["recognition"]["min_confidence"], config.data["recognition"]["stable_frames"])
+                swipe_detector = SwipeDetector()
+                swipe_until_ms = 0
+                active_swipe = None
             camera = Camera(config.data["camera"])
             stack.callback(camera.close)
             if camera_test:
@@ -50,7 +53,16 @@ def run(config, camera_test=False):
                 started = time.monotonic()
                 frame, timestamp_ms = camera.read()
                 detections = backend.recognize(frame, timestamp_ms)
-                outputs.update(filtering.update(detections))
+                swipe = swipe_detector.update(detections, timestamp_ms)
+                if swipe is not None:
+                    active_swipe = swipe
+                    swipe_until_ms = timestamp_ms + 650
+                stable = filtering.update(detections)
+                if timestamp_ms < swipe_until_ms:
+                    outputs.update(active_swipe)
+                else:
+                    active_swipe = None
+                    outputs.update(stable)
                 time.sleep(max(0, 1 / config.data["camera"]["fps"] - (time.monotonic() - started)))
     finally:
         signal.signal(signal.SIGTERM, previous)

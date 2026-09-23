@@ -13,7 +13,7 @@ bool pixelsReady = false;
 bool buzzerReady = false;
 unsigned long lastHeartbeat = 0;
 unsigned long lastBeep = 0;
-int gestureColor = 0;  // RPC protocol: 0=off, 1=red, 2=green.
+int gestureColor = 0;  // RPC protocol: 0=off, 1=red, 2=green, 3=blue.
 int displayedColor = 0;
 int remainingBeeps = 0;
 bool soundEnabled = false;
@@ -36,10 +36,14 @@ void show_color(int color) {
   } else if (color == 2) {
     digitalWrite(LED3_G, LOW);
     digitalWrite(LED4_G, LOW);
+  } else if (color == 3) {
+    digitalWrite(LED3_B, LOW);
+    digitalWrite(LED4_B, LOW);
   }
   if (pixelsReady) {
     for (int i = 0; i < 8; ++i) {
-      pixels.set(i, color == 1 ? 255 : 0, color == 2 ? 255 : 0, 0, PIXEL_BRIGHTNESS);
+      pixels.set(i, color == 1 ? 255 : 0, color == 2 ? 255 : 0,
+                 color == 3 ? 255 : 0, PIXEL_BRIGHTNESS);
     }
     pixels.show();
   }
@@ -47,12 +51,13 @@ void show_color(int color) {
 }
 
 void play_beep() {
-  buzzer.tone(gestureColor == 1 ? 1000 : 1800, BEEP_MS);
+  const int frequency = gestureColor == 1 ? 1000 : gestureColor == 2 ? 1800 : 1400;
+  buzzer.tone(frequency, BEEP_MS);
   lastBeep = millis();
 }
 
 int set_gesture_feedback(int color, bool lights, bool sound) {
-  if (color < 0 || color > 2) {
+  if (color < 0 || color > 3) {
     color = 0;
   }
   const bool changed = color != gestureColor;
@@ -65,7 +70,7 @@ int set_gesture_feedback(int color, bool lights, bool sound) {
     stop_buzzer();
   } else if (buzzerReady && (changed || !soundEnabled)) {
     stop_buzzer();
-    remainingBeeps = color == 1 ? 1 : 0;
+    remainingBeeps = color == 1 ? 1 : color == 3 ? 2 : 0;
     play_beep();
   }
   soundEnabled = sound;
